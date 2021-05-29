@@ -1,0 +1,66 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+  config.ssh.insert_key = false  
+  config.vm.synced_folder ".", "/vagrant"
+  config.vm.box_check_update = false
+  config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 81, host: 8081, host_ip: "127.0.0.1"
+
+    config.vm.provision "shell", privileged: false, inline:  <<-SHELL
+    sudo apt-get update
+    sudo apt-get install -y lxc lxc-templates
+    sudo apt-get remove -y gnupg
+    sudo apt-get install -y --reinstall gnupg2
+    
+    mkdir -p ~/.config/lxc
+    sudo sysctl kernel.unprivileged_userns_clone=1
+    sudo sed -i 's/USE_LXC_BRIDGE="false"/USE_LXC_BRIDGE="true"/g' /etc/default/lxc
+    sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="net.ifnames=0 biosdevname=0"/GRUB_CMDLINE_LINUX_DEFAULT="net.ifnames=0 systemd.legacy_systemd_cgroup_controller=yes"/g' /etc/default/grub
+    echo 'lxc.net.0.type = veth' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.net.0.flags = up' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.net.0.link = lxcbr0' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.apparmor.profile = unconfined' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.apparmor.allow_nesting = 1' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.idmap = u 0 100000 65536' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.idmap = g 0 100000 65536' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'vagrant veth lxcbr0 10' | sudo tee -a /etc/lxc/lxc-usernet
+    sudo update-grub
+    sudo systemctl enable lxc-net    
+    sudo systemctl restart lxc-net
+
+    lxc-create -t download -n cent1 -- -d centos -r 8 -a amd64
+    lxc-create -t download -n cent2 -- -d centos -r 8 -a amd64
+
+#    lxc-start -n cent1 
+#    lxc-start -n cent2 
+
+#    lxc-wait -n cent1 -s 'RUNNING|STARTING'
+#    lxc-wait -n cent2 -s 'RUNNING|STARTING'
+#    lxc-attach cent1 -- yum -y install httpd
+#    lxc-attach cent1 -- yum -y install php
+#    lxc-attach cent1 -- systemctl enable httpd
+#    lxc-attach cent1 -- systemctl start httpd
+#    lxc-attach cent2 -- yum -y install httpd
+#    lxc-attach cent2 -- yum -y install php
+#    lxc-attach cent2 -- systemctl enable httpd
+#    lxc-attach cent2 -- systemctl start httpd
+
+#    sudo chmod 775 /home/vagrant/.local/share/lxc/cent1/rootfs/var/www
+#    sudo mkdir -p /home/vagrant/.local/share/lxc/cent1/rootfs/var/www/01-demosite-static
+#    sudo cp /vagrant/index.html /home/vagrant/.local/share/lxc/cent1/rootfs/var/www/01-demosite-static/
+#    (echo '<VirtualHost *:80>' ; echo 'DocumentRoot /var/www/01-demosite-static/' ; echo '</VirtualHost>')| sudo tee -a /home/vagrant/.local/share/lxc/cent1/rootfs/etc/httpd/conf.d/default.conf
+#    lxc-attach cent1 -- systemctl restart httpd
+	
+#    sudo chmod 775 /home/vagrant/.local/share/lxc/cent2/rootfs/var/www
+#    sudo mkdir -p /home/vagrant/.local/share/lxc/cent2/rootfs/var/www/01-demosite-php
+#    sudo cp /vagrant/index.php /home/vagrant/.local/share/lxc/cent2/rootfs/var/www/01-demosite-php/
+#    sudo sed -i 's/Listen 80/Listen 81/g' /home/vagrant/.local/share/lxc/cent2/rootfs/etc/httpd/conf/httpd.conf
+#    (echo '<VirtualHost *:81>' ; echo 'DocumentRoot /var/www/01-demosite-php/' ; echo '</VirtualHost>')| sudo tee -a /home/vagrant/.local/share/lxc/cent2/rootfs/etc/httpd/conf.d/default.conf
+#    lxc-attach cent2 -- systemctl restart httpd 	
+
+#    lxc-ls -f
+#    sudo iptables -L -t nat
+#    ip=$(lxc-info -n cent1 -iH);sudo iptables -t nat -I PREROUTING -i eth0 -p tcp --dport 80 -j DNAT --to-destination ${ip}:80
+#    ip=$(lxc-info -n cent2 -iH);sudo iptables -t nat -I PREROUTING -i eth0 -p tcp --dport 81 -j DNAT --to-destination ${ip}:81
+   SHELL
+end
