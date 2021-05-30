@@ -20,6 +20,8 @@ Vagrant.configure("2") do |config|
     echo 'lxc.net.0.flags = up' | sudo tee -a /home/vagrant/.config/lxc/default.conf
     echo 'lxc.net.0.link = lxcbr0' | sudo tee -a /home/vagrant/.config/lxc/default.conf
     echo 'lxc.apparmor.profile = unconfined' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.start.auto = 1' | sudo tee -a /home/vagrant/.config/lxc/default.conf
+    echo 'lxc.start.delay = 5' | sudo tee -a /home/vagrant/.config/lxc/default.conf
     echo 'lxc.apparmor.allow_nesting = 1' | sudo tee -a /home/vagrant/.config/lxc/default.conf
     echo 'lxc.idmap = u 0 100000 65536' | sudo tee -a /home/vagrant/.config/lxc/default.conf
     echo 'lxc.idmap = g 0 100000 65536' | sudo tee -a /home/vagrant/.config/lxc/default.conf
@@ -27,15 +29,11 @@ Vagrant.configure("2") do |config|
     sudo update-grub
     sudo systemctl enable lxc-net    
     sudo systemctl restart lxc-net
-
     lxc-create -t download -n cent1 -- -d centos -r 8 -a amd64
     lxc-create -t download -n cent2 -- -d centos -r 8 -a amd64
 
-#    lxc-start -n cent1 
-#    lxc-start -n cent2 
+#    start containrs!!!!
 
-#    lxc-wait -n cent1 -s 'RUNNING|STARTING'
-#    lxc-wait -n cent2 -s 'RUNNING|STARTING'
 #    lxc-attach cent1 -- yum -y install httpd
 #    lxc-attach cent1 -- yum -y install php
 #    lxc-attach cent1 -- systemctl enable httpd
