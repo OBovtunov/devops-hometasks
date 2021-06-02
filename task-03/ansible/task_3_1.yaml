@@ -1,10 +1,10 @@
 ---
-- name: Centos_server_80/81_port
+- name: Server_listen_80_81
   hosts: all
   become: yes
 
-  tasks: task3_1
-
+  tasks: 
+    
     - name: Make_directory
       file:
         path: /var/www
@@ -37,7 +37,6 @@
         dest: /var/www/01-demosite-php/index.php
     
     - name: Reboot_httpd
-      become: yes
       service:
         name: httpd
         state: restarted
