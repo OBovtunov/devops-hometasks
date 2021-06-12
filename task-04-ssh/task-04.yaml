@@ -1,0 +1,105 @@
+---
+- name: Install soft master
+  hosts: master
+  become: yes
+  tasks: 
+    - name: Install Server Puppet
+      shell: yum install -y puppetserver git 
+
+    - name: Install Q10k
+      shell: /opt/puppetlabs/puppet/bin/gem install r10k 
+
+    - name: Create file $ directory
+      file:
+        path: /etc/puppetlabs/r10k
+        state: directory
+
+    - name: Copy Files R10K
+      copy: 
+        src: /vagrant/r10k.yaml
+        dest: /etc/puppetlabs/r10k/
+
+    - name: Connect to reposit
+      become: yes
+      shell: sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
+    
+    - name: Change Ram
+      become: yes
+      replace:
+        path: /etc/sysconfig/puppetserver
+        regexp: 'JAVA_ARGS="-Xms2g -Xmx2g'
+        replace: 'JAVA_ARGS="-Xms256m -Xmx256m'
+
+    - name: ADD hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "{{item}}"
+      with_items:
+         - '192.168.33.10 master.puppet'
+         - '192.168.33.11 slave2.puppet'
+         - '192.168.33.12 slave1.puppet'
+
+    - name: ADD host puppetserver
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "{{item}}"
+      with_items:
+         - server = master.puppet
+         - autosign = true 
+              
+    - name: Enable Puppet
+      systemd:
+        name: puppetserver
+        enabled: yes
+        state: started
+
+    - name: Start Puppet
+      systemd:
+        state: started
+        name: puppetserver
+
+#    - name: Disable SSH press key
+#      replace:
+#        path: /etc/ansible/ansible.cfg
+#        regexp: '# some basic default values...'
+#        replace: 'host_key_checking=no'
+
+#    - name: Disable SSH press key2
+#      replace:
+#        path: /etc/ansible/ansible.cfg
+#        regexp: '# ssh arguments to use'
+#        replace: 'ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes'
+
+- name: Install soft slave 
+  hosts: slave
+  become: yes
+  tasks: 
+
+    - name: Install Puppet agent
+      shell: yum install -y puppet-agent
+
+    - name: ADD hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.10 master.puppet puppet'
+   
+    - name: Make connect to puppet-server
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "{{item}}"
+      with_items:
+         - '[agent]'
+         - 'server = master.puppet' 
+         - 'runinterval = 1m'
+
+    - name: Enable Puppet
+      systemd:
+        name: puppet
+        enabled: yes
+        state: started
+
+    - name: Restart Puppet
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: puppet
