@@ -1,0 +1,10 @@
+[master]
+master.puppet ansible_connection=local
+
+[slave]
+slave1.puppet ansible_host=192.168.33.12 ansible_user=vagrant ansible_password=vagrant
+slave2.puppet ansible_host=192.168.33.11 ansible_user=vagrant ansible_password=vagrant
+
+
+
+

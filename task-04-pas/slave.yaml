@@ -1,0 +1,40 @@
+---
+- name: Install soft slave 
+  hosts: slave
+  become: yes
+  tasks: 
+
+    - name: Install Puppet agent
+      shell: yum install -y puppet-agent
+
+    - name: ADD hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.10 master.puppet puppet'
+   
+    - name: Make connect to puppet-server
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "{{item}}"
+      with_items:
+         - '[agent]'
+         - 'server = master.puppet' 
+         - 'runinterval = 1m'
+
+    - name: Enable Puppet
+      systemd:
+        name: puppet
+        enabled: yes
+        state: started
+
+    - name: Restart Puppet
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: puppet
+   
+
+#    - name: Send request SSl 
+#      shell: sudo /opt/puppetlabs/puppet/bin/puppet agent -t 
+
+  
