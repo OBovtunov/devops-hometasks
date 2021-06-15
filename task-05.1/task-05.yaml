@@ -5,6 +5,9 @@
   tasks: 
     - name: Change status selinux
       shell: setenforce 0
+      
+    - name:  ADD Puppet
+      shell: yum install -y https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
 
 - name: Install soft master
   hosts: master
@@ -43,7 +46,7 @@
         line: "{{item}}"
       with_items:
          - '192.168.33.10 master.puppet'
-
+         - '192.168.33.11 slave2.puppet'
          - '192.168.33.12 slave1.puppet'
 
     - name: ADD host puppetserver
@@ -55,7 +58,7 @@
          - ''
          - '[agent]'
          - 'server = master.puppet'
-         - 'runinterval = 4m'
+         - 'runinterval = 2m'
               
     - name: Enable Puppet
       systemd:
