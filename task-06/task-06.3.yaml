@@ -1,0 +1,162 @@
+---
+- hosts: master
+  vars:
+    - jenkins_user: admin
+    - jenkins_password: admin
+    - jenkins_path: /var/lib/jenkins
+    - jenkins_url: http://localhost:8080
+
+  tasks:
+
+    - name: Install start soft
+      package:
+         name:
+           - curl
+           - git
+           - build-essential
+           - default-jre
+         state: present
+
+    - name: Add Jenkins apt repository key.
+      apt_key:
+        url: "https://pkg.jenkins.io/debian-stable/jenkins.io.key"
+        state: present
+
+    - name: ADD KEY 
+      shell: |
+          sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
+          /etc/apt/sources.list.d/jenkins.list'
+          apt-get update
+
+    
+
+    - name: Installing Jenkins
+      apt:
+        name: jenkins     
+        state: present
+        update_cache: yes
+      register: jenkins_install
+
+#    - name: Restarting Jenkins
+#      service:
+#        name: jenkins
+#        state: restarted
+#     when: jenkins_install.changed
+
+#    - name: "Wait For Jenkins To Come Up"
+#      uri:
+#        url: http://localhost:8080
+#        status_code: 403
+#      register: result
+#      until: result.status == 403
+#      retries: 10
+#      delay: 15
+#      when: jenkins_install.changed
+
+    - name: Creating Directory For Groovy Script - Jenkins
+      file:
+        path: "/var/lib/jenkins/init.groovy.d"
+        state: directory
+    
+    - name: Copying Groovy Script For Deafult Jenkins User Creation
+      become: yes 
+      copy:
+        src: "/vagrant/templates/jenkins_script.groovy"
+        dest: "/var/lib/jenkins/init.groovy.d/basic-security.groovy"
+    
+    - name: Restarting Jenkins
+      service:
+        name: jenkins
+        state: restarted
+    
+    - name: "Wait For Jenkins To Come Up"
+      uri:
+        url: http://localhost:8080/cli/
+        status_code: 403
+      register: result
+      until: result.status == 403
+      retries: 10
+      delay: 15
+    
+    - name: Removing Groovy Script
+      file:
+        path: "/var/lib/jenkins/init.groovy.d/basic-security.groovy"
+        state: absent
+   
+    - name: "Turn off Jenkins setup wizard"
+      lineinfile:
+        dest: /etc/default/jenkins
+        line: 'JAVA_ARGS="-Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"'
+      
+    - name: Restarting Jenkins
+      service:
+        name: jenkins
+        state: restarted
+
+    - name: "Wait For Jenkins To Come Up 2"
+      uri:
+        url: http://localhost:8080/cli/
+        status_code: 403
+      register: result
+      until: result.status == 403
+      retries: 10
+      delay: 15
+
+    - name: Set Jenkins admin password fact.
+      set_fact:
+        jenkins_admin_password: "admin | admin"
+      no_log: true
+
+    - name: Download current plugin updates from Jenkins update site.
+      get_url:
+        url: "https://updates.jenkins.io/update-center.json"
+        dest: "/var/lib/jenkins/updates/default.json"
+        owner: jenkins
+        group: jenkins
+        mode: 0440
+      changed_when: false
+      register: get_result
+      until: get_result is success
+      retries: 3
+      delay: 2
+
+  #  - name: Remove first and last line from json file.
+  #    replace:
+  #      path: "/var/lib/jenkins/updates/default.json"
+  #      regexp: "1d;$d"
+
+
+    - name: Install Jenkins plugins using password.
+      jenkins_plugin:
+        name: "{item}" 
+        jenkins_home: "/var/lib/jenkins"
+        url_username: "admin"
+        url_password: "admin"
+        state: "present"
+        timeout: "30"
+        updates_url: "https://updates.jenkins.io"
+        url: "http://localhost:8080"
+      register: plugin_result
+      until: plugin_result is success
+      retries: 5
+      delay: 10      
+      loop:
+        - git
+        - goland
+        - github
+        - nexus-artifact-uploader
+        - publish-over-ssh
+        - Pipeline
+        - ssh-agent
+      
+    - name: Copy files goland and work 
+      copy:
+          src: /vagrant/templates/
+          dest: /var/lib/jenkins/
+          owner: jenkins
+          group: jenkins
+
+    - name: Restart jenkins
+      service:
+        name: jenkins
+        state: restarted

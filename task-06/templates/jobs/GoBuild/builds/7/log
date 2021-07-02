@@ -1,0 +1,55 @@
+Started by user [8mha:////4IM1I3QtdoUI2ua6cZhV41dBBMFKdcINfWa5tfGuujhPAAAAlx+LCAAAAAAAAP9b85aBtbiIQTGjNKU4P08vOT+vOD8nVc83PyU1x6OyILUoJzMv2y+/JJUBAhiZGBgqihhk0NSjKDWzXb3RdlLBUSYGJk8GtpzUvPSSDB8G5tKinBIGIZ+sxLJE/ZzEvHT94JKizLx0a6BxUmjGOUNodHsLgAzWEgZu/dLi1CL9xJTczDwAj6GcLcAAAAA=[0madmin
+Running as SYSTEM
+Building in workspace /var/lib/jenkins/workspace/GoBuild
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/GoBuild/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/OBovtunov/word-cloud-generator.git # timeout=10
+Fetching upstream changes from https://github.com/OBovtunov/word-cloud-generator.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.20.1'
+ > git fetch --tags --force --progress -- https://github.com/OBovtunov/word-cloud-generator.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+Checking out Revision d1bb58438c36dc9e4e3646f135f9421097193bc9 (refs/remotes/origin/master)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d1bb58438c36dc9e4e3646f135f9421097193bc9 # timeout=10
+Commit message: "Update Jenkinsfile"
+ > git rev-list --no-walk d1bb58438c36dc9e4e3646f135f9421097193bc9 # timeout=10
+[GoBuild] $ /bin/sh -xe /tmp/jenkins11409324713297058928.sh
++ export GOPATH=/var/lib/jenkins/workspace/GoBuild
++ go env GOPATH
++ export PATH=/var/lib/jenkins/tools/org.jenkinsci.plugins.golang.GolangInstallation/Go_1.13.15/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/var/lib/jenkins/workspace/GoBuild/bin
++ go get github.com/tools/godep
++ go get github.com/smartystreets/goconvey
++ go get github.com/GeertJohan/go.rice/rice
++ go get github.com/OBovtunov/word-cloud-generator/wordyapi
++ go get github.com/gorilla/mux
++ sed -i s/1.DEVELOPMENT/1.$BUILD_NUMBER/g ./rice-box.go
++ GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v .
++ ls -l artifacts
+total 10904
+-rwxr-xr-x 1 jenkins jenkins 11161829 Jul  2 09:27 word-cloud-generator
+Uploading artifact word-cloud-generator started....
+GroupId: 1
+ArtifactId: 1
+Classifier: 
+Type: gz
+Version: 1.7
+File: word-cloud-generator
+Repository:word-cloud-builds
+Uploading: http://192.168.33.12:8081/repository/word-cloud-builds/1/word-cloud-generator/1.7/word-cloud-generator-1.7.gz
+10 % completed (1.1 MB / 11 MB).
+20 % completed (2.2 MB / 11 MB).
+30 % completed (3.4 MB / 11 MB).
+40 % completed (4.5 MB / 11 MB).
+50 % completed (5.6 MB / 11 MB).
+60 % completed (6.7 MB / 11 MB).
+70 % completed (7.8 MB / 11 MB).
+80 % completed (8.9 MB / 11 MB).
+90 % completed (10 MB / 11 MB).
+100 % completed (11 MB / 11 MB).
+Uploaded: http://192.168.33.12:8081/repository/word-cloud-builds/1/word-cloud-generator/1.7/word-cloud-generator-1.7.gz (11 MB at 6.4 MB/s)
+Uploading artifact word-cloud-generator completed.
+Archiving artifacts
+Finished: SUCCESS
