@@ -3,15 +3,14 @@
   hosts: master
   become: yes
   vars:
-    jenkins_version: "2.299"
     jenkins_hostname: localhost #http://192.168.33.10
     jenkins_admin_username: admin
     jenkins_admin_password: admin
     jenkins_java_options: "-Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"
+    jenkins_plugin_timeout: 300
     jenkins_plugins:
       - git
       - github
-      - timestamper      
       - nexus-artifact-uploader
       - publish-over-ssh
       - Pipeline
