@@ -8,5 +8,5 @@ RUN mkdir /wcg; \
 CMD /wcg/artifacts/linux/word-cloud-generator
 
 FROM alpine:latest
-COPY --from=build /wcg/artifacts/linux/word-cloud-generator .
+COPY --from= 0 /wcg/artifacts/linux/word-cloud-generator .
 CMD /word-cloud-generator
