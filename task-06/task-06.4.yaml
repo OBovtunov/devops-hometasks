@@ -12,8 +12,6 @@
       - git
       - github
       - nexus-artifact-uploader
-      - publish-over-ssh
-      - Pipeline
       - golang
       - ssh
     jenkins_plugins_install_dependencies: true
@@ -31,12 +29,27 @@
     - role: geerlingguy.jenkins
 
   tasks:
-    - name: Copy files goland,work,  
+    - name: Jenkins stop
+      service:
+        name: jenkins
+        state: stopped
+
+    - name: Copy files goland,work,secrets  
       copy:
           src: /vagrant/templates/
           dest: /var/lib/jenkins/
           owner: jenkins
           group: jenkins
+
+    - name: Remove file 
+      file:
+        path: /var/lib/jenkins/identity.key.enc
+        state: absent
+
+  #  - name: Jenkins START
+  #    service:
+  #      name: jenkins
+  #      state: started
 
      
 - name: Setup Nexus
@@ -127,7 +140,7 @@
     
     - name: Change PasswordAuthentication
       become: yes 
-      shell: sudo yes vagrant | passwd vagrant    
+      shell: yes vagrant | passwd vagrant    
                   
     - name: restart sshd
       service:
