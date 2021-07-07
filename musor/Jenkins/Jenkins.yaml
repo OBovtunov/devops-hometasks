@@ -1,9 +1,9 @@
 ---
 - name: Setup Jenkins
-  hosts: master
+  hosts: localhost
   become: yes
   vars:
-    jenkins_hostname: 
+    jenkins_hostname: localhost
     jenkins_admin_username: admin
     jenkins_admin_password: admin
     jenkins_java_options: "-Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"
