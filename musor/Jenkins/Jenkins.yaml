@@ -39,7 +39,7 @@
 
     - name: Copy files goland,work,secrets  
       copy:
-          src: /vagrant/templates/
+          src: /templates/
           dest: /var/lib/jenkins/
           owner: jenkins
           group: jenkins

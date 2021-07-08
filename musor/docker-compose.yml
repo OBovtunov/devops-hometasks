@@ -7,7 +7,16 @@ services:
     ports:
       - 80:8080
     networks:
-      - Jenkins
+      - work
     container_name: jenkins
+  nexus:
+    build:
+      context: ./nexus
+      dockerfile: Dockerfile
+    ports:
+      - 81:8081
+    networks:
+      - work
+    container_name: nexus
 networks:
-  Jenkins: 
+  work: 
