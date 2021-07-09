@@ -19,7 +19,7 @@
   vars:
     java_packages:      
        - adoptopenjdk-8-hotspot-jre
-  
+    nexus_public_hostname: 'nexus'  
     nexus_admin_password: "admin"
     nexus_annonymous_access: yes
     nexus_config_maven: false

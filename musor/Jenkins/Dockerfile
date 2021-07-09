@@ -6,7 +6,7 @@ COPY ./templates/ /templates/
 RUN ansible-galaxy install geerlingguy.jenkins \
 && ansible-galaxy install geerlingguy.java \
 && ansible-playbook /temp/Jenkins.yaml
-ENTRYPOINT bash
+CMD /etc/init.d/jenkins start & bash
 
 
 

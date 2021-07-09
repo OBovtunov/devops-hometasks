@@ -47,7 +47,7 @@ mv ./artifacts/word-cloud-generator.gz ./artifacts/word-cloud-generator</command
     <sp.sd.nexusartifactuploader.NexusArtifactUploader plugin="nexus-artifact-uploader@2.13">
       <nexusVersion>nexus3</nexusVersion>
       <protocol>http</protocol>
-      <nexusUrl>192.168.33.12:8081</nexusUrl>
+      <nexusUrl>nexus:8081</nexusUrl>
       <groupId>1</groupId>
       <version>1.$BUILD_NUMBER</version>
       <repository>word-cloud-builds</repository>
@@ -61,26 +61,6 @@ mv ./artifacts/word-cloud-generator.gz ./artifacts/word-cloud-generator</command
       </artifacts>
       <credentialsId>7adeda37-a6d0-4cb6-a8f2-71a826cfb3b1</credentialsId>
     </sp.sd.nexusartifactuploader.NexusArtifactUploader>
-    <org.jvnet.hudson.plugins.SSHBuilder plugin="ssh@2.6.1">
-      <siteName>vagrant@192.168.33.11:22</siteName>
-      <command>sudo systemctl stop wordcloud 
-curl -X GET -u downloader:downloader &quot;http://192.168.33.12:8081/repository/word-cloud-builds/1/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz
-gunzip -f /opt/wordcloud/word-cloud-generator.gz
-chmod +x /opt/wordcloud/word-cloud-generator
-sudo systemctl start wordcloud</command>
-      <execEachLine>false</execEachLine>
-      <hideCommand>false</hideCommand>
-    </org.jvnet.hudson.plugins.SSHBuilder>
-    <org.jvnet.hudson.plugins.SSHBuilder plugin="ssh@2.6.1">
-      <siteName>vagrant@192.168.33.13:22</siteName>
-      <command>sudo systemctl stop wordcloud 
-curl -X GET -u downloader:downloader &quot;http://192.168.33.12:8081/repository/word-cloud-builds/1/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz
-gunzip -f /opt/wordcloud/word-cloud-generator.gz
-chmod +x /opt/wordcloud/word-cloud-generator
-sudo systemctl start wordcloud</command>
-      <execEachLine>false</execEachLine>
-      <hideCommand>false</hideCommand>
-    </org.jvnet.hudson.plugins.SSHBuilder>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>

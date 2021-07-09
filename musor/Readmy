@@ -1,0 +1,2 @@
+sudo docker run --rm --network musor_work -it -p 80:8080 --name jenkins musor_jenkins bash
+sudo docker run --rm --network musor_work -it -p 81:8081 --name nexus musor_nexus bash
