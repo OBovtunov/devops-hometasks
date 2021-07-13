@@ -1,0 +1,12 @@
+ config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y docker.io curl
+
+    curl -sLo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    curl -sLo kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+    usermod -a -G docker vagrant
+
+    mv minikube kubectl /usr/local/bin/
+    chmod +x /usr/local/bin/*
+  SHELL
