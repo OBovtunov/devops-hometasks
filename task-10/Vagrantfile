@@ -1,0 +1,20 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+
+       config.vm.define "minikube" do |master|
+           master.vm.hostname = "minikube"
+           master.vm.provider "virtualbox" do |vb|
+               vb.memory = 4096
+               vb.cpus   = 2
+             end
+             master.vm.provision "shell", inline: <<-shell
+               sudo apt-get update
+               sudo apt install -y docker.io docker-compose curl
+               sudo usermod -a -G docker vagrant
+               curl -sLo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+               curl -sLo kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+               mv minikube kubectl /usr/local/bin/
+               chmod +x /usr/local/bin/*               
+             shell
+       end
+end 
