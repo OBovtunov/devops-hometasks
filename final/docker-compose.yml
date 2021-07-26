@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 services:
   jenkins:
     build:
@@ -23,5 +23,6 @@ services:
     container_name: nexus
 networks:
   work: 
+    name: work
 volumes: 
   exchange:
